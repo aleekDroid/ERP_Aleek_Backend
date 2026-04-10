@@ -1,3 +1,4 @@
+// src/auth/auth.service.ts
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -6,6 +7,7 @@ import { Usuario } from './entities/usuario.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto'; 
 import { Logger } from '@nestjs/common';
+import { SessionService } from '../session/session.service';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -14,7 +16,8 @@ export class AuthService {
     constructor(
         @InjectRepository(Usuario)
         private usuarioRepository: Repository<Usuario>,
-        private jwtService: JwtService, // <-- Inyectamos el servicio de JWT
+        private jwtService: JwtService, 
+        private sessionService: SessionService,
     ) { }
 
     async register(registerDto: RegisterDto) {
@@ -76,6 +79,7 @@ export class AuthService {
         // Crear el Token
         const payload = { userId: usuario.id };
         const token = this.jwtService.sign(payload);
+        await this.sessionService.saveSession(usuario.id, token);
 
         // Actualizar la fecha de último acceso (last_login)
         usuario.last_login = new Date();

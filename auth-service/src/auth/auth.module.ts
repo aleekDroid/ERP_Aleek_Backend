@@ -5,19 +5,20 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { Usuario } from './entities/usuario.entity';
+import { SessionModule } from '../session/session.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Usuario]),
-    // Configuramos el JWT leyendo la variable de entorno.
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '8h' }, 
+        signOptions: { expiresIn: '8h' },
       }),
     }),
+    SessionModule,
   ],
   controllers: [AuthController],
   providers: [AuthService]
