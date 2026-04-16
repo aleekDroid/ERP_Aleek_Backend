@@ -17,7 +17,10 @@ async function ticketRoutes(fastify, options) {
     preHandler: [fastify.authenticate] 
   }, controller.getSummary);
 
-  // (Aquí se agregarían /:id, /:id/status, /:id/comments, etc.)
+  // PATCH /tickets/:id -> Actualizar un ticket específico
+  fastify.patch('/:id', { 
+    preHandler: [fastify.authenticate] 
+  }, controller.update);
 }
 
 module.exports = ticketRoutes;

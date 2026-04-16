@@ -48,7 +48,7 @@ export class AuthService {
                 creado_en: usuarioGuardado.creado_en,
             };
 
-        } catch (error) {
+        } catch (error: any) {
             if (error.code === '23505') {
                 throw new HttpException('Usuario o correo ya existe', HttpStatus.CONFLICT);
             }
@@ -76,12 +76,20 @@ export class AuthService {
             throw new HttpException('Contraseña incorrecta', HttpStatus.UNAUTHORIZED); // 401
         }
 
+        let permisosNombres: string[] = [];
+    if (usuario.permisos_globales && usuario.permisos_globales.length > 0) {
+        const result = await this.usuarioRepository.query(
+            `SELECT nombre FROM permisos WHERE id = ANY($1)`,
+            [usuario.permisos_globales]
+        );
+        permisosNombres = result.map((p: any) => p.nombre);
+    }
+
         // Crear el Token
         const payload = { userId: usuario.id };
         const token = this.jwtService.sign(payload);
         await this.sessionService.saveSession(usuario.id, token);
 
-        // Actualizar la fecha de último acceso (last_login)
         usuario.last_login = new Date();
         await this.usuarioRepository.save(usuario);
 
@@ -92,6 +100,7 @@ export class AuthService {
             user: {
                 id: usuario.id,
                 username: usuario.username,
+                permisos: permisosNombres
             },
         };
     }

@@ -11,10 +11,16 @@ module.exports = fp(async function (fastify, opts) {
         throw new Error('Missing token');
       }
       const token = authHeader.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      
+      const secret = (process.env.JWT_SECRET || 'secreto').trim(); 
+      
+      const decoded = jwt.verify(token, secret);
       request.user = decoded; 
     } catch (err) {
-      reply.code(401).send({ error: 'No autorizado o token expirado' });
+      console.error('❌ Error descifrando JWT:', err.message);
+      console.log('🔑 Secreto usado en Fastify:', process.env.JWT_SECRET);
+      
+      reply.code(401).send({ error: 'No autorizado', detalle: err.message });
     }
   });
 
@@ -28,10 +34,16 @@ fastify.decorate('requirePermission', function (requiredPermission) {
         WHERE u.id = $1 AND p.nombre = $2
         LIMIT 1;
       `;
-      const result = await pool.query(query, [userId, requiredPermission]);
       
-      if (result.rowCount === 0) {
-        reply.code(403).send({ error: `Falta el permiso: ${requiredPermission}` });
+      try {
+        const result = await pool.query(query, [userId, requiredPermission]);
+        
+        if (result.rowCount === 0) {
+          reply.code(403).send({ error: `Falta el permiso: ${requiredPermission}` });
+        }
+      } catch (err) {
+        console.error('Error verificando permiso:', err);
+        reply.code(500).send({ error: 'Error interno verificando permisos' });
       }
     };
   });

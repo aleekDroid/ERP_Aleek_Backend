@@ -3,9 +3,9 @@ require('dotenv').config();
 
 const fastify = Fastify({ logger: true });
 
-// 1. Registrar CORS para Angular
 fastify.register(require('@fastify/cors'), {
-  origin: '*', // En producción cambia esto por la URL de tu Angular
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'] 
 });
 
 // 2. Registrar Plugins Propios (Auth)

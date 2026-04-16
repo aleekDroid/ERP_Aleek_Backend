@@ -3,6 +3,9 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT || 3002);
+  
+  app.enableCors(); 
+  
+  await app.listen(process.env.PORT ?? 3000); // (O el puerto que tenga tu .env)
 }
 bootstrap();

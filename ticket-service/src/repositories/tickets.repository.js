@@ -31,6 +31,30 @@ class TicketsRepository {
     return result.rows;
   }
 
+  async updateTicket(id, data) {
+    const query = `
+      UPDATE tickets
+      SET 
+        titulo = $1,
+        descripcion = $2,
+        estado_id = (SELECT id FROM estados WHERE nombre = $3 LIMIT 1),
+        prioridad_id = (SELECT id FROM prioridades WHERE nombre = $4 LIMIT 1),
+        fecha_final = $5,
+        asignado_id = (SELECT id FROM usuarios WHERE nombre_completo = $6 LIMIT 1)
+      WHERE id = $7
+    `;
+    
+    await pool.query(query, [
+      data.titulo, 
+      data.descripcion, 
+      data.estado, 
+      data.prioridad, 
+      data.fechaLimite, 
+      data.asignadoA || null, 
+      id
+    ]);
+  }
+
   async createTicketWithHistory(data, autorId) {
     const client = await pool.connect();
     try {
