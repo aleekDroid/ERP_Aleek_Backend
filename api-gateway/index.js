@@ -15,9 +15,8 @@ fastify.register(require('@fastify/cors'), {
 });
 
 // --- 2. RATE LIMITING ---
-// Requerimiento: Limitar a 100 requests por minuto
 fastify.register(require('@fastify/rate-limit'), {
-  max: 100,
+  max: 300,
   timeWindow: '1 minute',
   errorResponseBuilder: function (request, context) {
     // Formato JSON Universal para el error 429
