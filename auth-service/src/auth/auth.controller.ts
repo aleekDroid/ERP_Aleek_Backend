@@ -1,5 +1,5 @@
 // src/auth/auth.controller.ts
-import { Controller, Post, Body, HttpStatus, Res } from '@nestjs/common';
+import { Controller, Post, Body, HttpStatus, Res, HttpException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type { Response } from 'express'; 
 
@@ -18,11 +18,13 @@ export class AuthController {
         data: result 
       });
 
-    } catch (error) {
-      return res.status(HttpStatus.UNAUTHORIZED).json({
-        statusCode: HttpStatus.UNAUTHORIZED,
+    } catch (error: any) {
+      const status = error instanceof HttpException ? error.getStatus() : HttpStatus.UNAUTHORIZED;
+      const message = error instanceof HttpException ? error.message : 'Credenciales inválidas';
+      return res.status(status).json({
+        statusCode: status,
         intOpCode: 'ExUS401', 
-        data: { error: 'Credenciales inválidas' }
+        data: { error: message }
       });
     }
   }
@@ -38,11 +40,13 @@ export class AuthController {
         data: newUser
       });
 
-    } catch (error) {
-      return res.status(HttpStatus.BAD_REQUEST).json({
-        statusCode: HttpStatus.BAD_REQUEST,
+    } catch (error: any) {
+      const status = error instanceof HttpException ? error.getStatus() : HttpStatus.BAD_REQUEST;
+      const message = error instanceof HttpException ? error.message : 'Error al registrar usuario';
+      return res.status(status).json({
+        statusCode: status,
         intOpCode: 'ExUS400',
-        data: { error: 'Error al registrar usuario' }
+        data: { error: message }
       });
     }
   }
