@@ -19,6 +19,7 @@ import { UsersModule } from './users/users.module';
         username: configService.get<string>('PGUSER'),
         password: configService.get<string>('PGPASSWORD'),
         database: configService.get<string>('PGDATABASE'),
+        ssl: { rejectUnauthorized: false },
         autoLoadEntities: true,
         synchronize: false, 
       }),

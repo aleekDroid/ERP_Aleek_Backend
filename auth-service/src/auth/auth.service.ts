@@ -85,8 +85,8 @@ export class AuthService {
         permisosNombres = result.map((p: any) => p.nombre);
     }
 
-        // Crear el Token
-        const payload = { userId: usuario.id };
+        // Crear el Token (incluimos permisos para que el API Gateway los valide)
+        const payload = { userId: usuario.id, permisos: permisosNombres };
         const token = this.jwtService.sign(payload);
         await this.sessionService.saveSession(usuario.id, token);
 
